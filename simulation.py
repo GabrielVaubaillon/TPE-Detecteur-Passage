@@ -1,59 +1,160 @@
+#--------------------------
+#Imports :
+#--------------------------
+
 from config import *
 import pygame
+from time import sleep,localtime
 from pygame.locals import *
 
+#--------------------------
+#Classes :
+#--------------------------
 
-#Initialisations des valeurs :
-xCentre = (posCapteur[0] + posDiode1[0]) / 2
-#On prend : entree : L'obstacle descend (vitesse selon y positif)
-#           sortie : L'obstacle monte (vitesse selon y négatif)
-yDepartEntree = min(posDiode1[1] , posDiode2[1] , posDiode2[1]) - tailleObstacle - 10
-yDepartSortie = max(posDiode1[1] , posDiode2[1] , posDiode2[1]) + 10
+class Diode:
+    def __init__(self, pos, intensite):
+        self.x = pos[0]
+        self.y = pos[1]
+        self.intensite = intensite
+        #Pour l'affichage :
+        self.skin = pygame.Surface((5,5))
+        self.skin.fill((255,0,0))
 
-yObstacleRayon1 = (posCapteur[1] / posCapteur[0]) * xCentre
-yObstacleRayon2 = ((posCapteur[1] - posDiode2[1]) / posCapteur[0]) * xCentre + posDiode2[1]
+    def affiche(self,decal):
+        pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
+        fenetre.blit(self.skin, pixelPosition)
 
-valeurRef = intensiteDiode1 + intensiteDiode2
 
-ecartDiode = posDiode2[1] #Diode 1 est l'origine
-dtParPassage = (ecartDiode + tailleObstacle + 10) / (vitesseObstacle * dt)
-print(dtParPassage)
+class Capteur:
+    def __init__(self, pos):
+        self.x = pos[0]
+        self.y = pos[1]
+        #Pour l'affichage :
+        self.skin = pygame.Surface((5,5))
+        self.skin.fill((0,255,0))
 
-passageEnCours = False
+    def affiche(self,decal):
+        pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
+        fenetre.blit(self.skin, pixelPosition)
 
+
+class Obstacle:
+    def __init__(self, taille, position, vitesse):
+        self.taille = taille
+        self.x = position[0]
+        self.y = position[1]
+        self.vitesse = vitesse
+        #Pour l'affichage :
+        self.skin = pygame.Surface((5,self.taille * pixelsParCentimetre))
+        self.skin.fill((255,255,255))
+
+    def affiche(self,decal):
+        pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
+        fenetre.blit(self.skin, pixelPosition)
+
+    def avance(self,dt):
+        #L'obstacle ne se déplace que selon l'axe y
+        self.y = self.y + dt * self.vitesse
+
+    def isLoinDuDispositif(self):
+        return self.y > startBas or self.y + self.taille < startHaut
+
+#--------------------------
 #Fonctions :
-def deplaceObstacle(vitesse, dt, posObstacle):
-    return (posObstacle[0], posObstacle[1] + dt * vitesse)
+#--------------------------
 
-def intensiteCapteur(posObstacle , tailleObstacle, intensiteDiode1 , yObstacleRayon1,intensiteDiode2 , yObstacleRayon2):
-    yHaut = posObstacle[1]
-    yBas = posObstacle[1] + tailleObstacle
+def str_nb(n,taille = 2):
+    #But de la fonction : écrit les nombres à la bonne taille,
+    #    avec des 0 devant si ils sont trops courts
+    #IN : n , float or int, le nombre que l'on veut écrire
+    #     taille , int , la taille du nombre écrit (2 par défaut)
+    ch = str(n)
+    while len(ch) < taille:
+        ch = '0' + ch
+    return ch
+
+def intensiteCapteur(obstacle,diode1,diode2,intersection1,intersection2):
+    yHaut = obstacle.y
+    yBas = obstacle.y + obstacle.taille
     valeur = 0
     #Rappel : l'axe y est vers le bas
-    if not (yObstacleRayon1 > yHaut and yObstacleRayon1 < yBas):
-        valeur += intensiteDiode1
+    if not (intersection1 > yHaut and intersection1 < yBas):
+        valeur += diode1.intensite
 
-    if not (yObstacleRayon2 > yHaut and yObstacleRayon2 < yBas):
-        valeur += intensiteDiode2
+    if not (intersection2 > yHaut and intersection2 < yBas):
+        valeur += diode2.intensite
 
     return valeur
 
+def affiche(fond,diode1,diode2,obstacle,capteur):
+    fenetre.blit(fond,(0,0))
+    decalage = affichageOrigine
+    diode1.affiche(decalage)
+    diode2.affiche(decalage)
+    obstacle.affiche(decalage)
+    capteur.affiche(decalage)
 
+    pygame.display.flip()
+
+def fromListToCSV(liste):
+    print("Ne pas eteindre, sauvegarde des données en cours")
+    D = localtime()
+    name = str(D[0]) + str_nb(D[1]) + str_nb(D[2]) + str_nb(D[3])+ str_nb(D[4]) + ".dec"
+    f = open("courbes/" + name, "w")
+    for el in liste:
+        f.write(str(el) + ',')
+    f.close()
+    print(name, "sauvegardé")
+
+#--------------------------
+#Initialisations des valeurs :
+#--------------------------
+diode1 = Diode((0,0), intensiteDiode1)
+diode2 = Diode((0, ecartDiodes), intensiteDiode2)
+capteur = Capteur(posCapteur)
+obstacle = None
+xCentre = capteur.x / 2.0
+
+#On prend : entree : L'obstacle descend (vitesse selon y positif)
+#           sortie : L'obstacle monte (vitesse selon y négatif)
+#Coordonnée y de départ de l'obstacle :
+startHaut = min(diode1.y , diode2.y , capteur.y) - (tailleObstacle + margeDepart)
+startBas = max(diode1.y , diode2.y , capteur.y) + margeDepart
+
+#Niveau y où la trajectoire de l'obstacle coupe celle des rayons lumineux diode/capteur
+intersection1 = (capteur.y / capteur.x) * xCentre
+intersection2 = ((capteur.y - diode2.y) / capteur.x) * xCentre + diode2.y
+
+#intensite reçue par le capteur lorsqu'aucune diode est obstruée
+valeurRef = diode1.intensite + diode2.intensite
+
+#Temps nécessaire à l'objet pour passer
+dtParPassage = (vitesseObstacle / (startBas - startHaut + tailleObstacle)) / dt
+#Vitesse divisée par distance, divisé par dt
+
+mesures = []
+
+#--------------------------
 #Initialisation de l'IHM
+#--------------------------
+
 pygame.init()
+hauteur = (max(diode1.y , diode2.y , capteur.y) + 10) * pixelsParCentimetre
+largeur = (capteur.x + 10) * pixelsParCentimetre
+
 
 fenetre = pygame.display.set_mode((largeur, hauteur))
 
-skinDiode1 = pygame.Surface((5,5))
-skinDiode1.fill((255,0,0))
-skinDiode2 = pygame.Surface((5,5))
-skinDiode2.fill((255,0,0))
-skinCapteur = pygame.Surface((5,5))
-skinCapteur.fill((0,255,0))
+fond = pygame.Surface((largeur, hauteur))
+fond.fill((0,0,0))
 
-#BouclePrincipale
+#--------------------------
+#BouclePrincipale :
+#--------------------------
+
 continuer = True
 while continuer:
+    sleep(max(timeGap,dt))
     for event in pygame.event.get():
         if event.type == QUIT:
             continuer = False
@@ -61,28 +162,23 @@ while continuer:
             if event.key == K_ESCAPE:
                 continuer = False
 
-            if not passageEnCours:
+            if obstacle == None: # on ne lance pas plusieurs obstacle en même temps
                 if event.key == keyEntree:
-                    temps = 0 #faux temps, temps de la simulation, en dt
-                    passageEnCours = True
-                    valeurs = []
-                    vitesse = vitesseObstacle
-                    posObstacle = (xCentre, yDepartEntree)
+                    obstacle = Obstacle(tailleObstacle, (xCentre, startHaut), vitesseObstacle)
                     print("entrée")
 
                 if event.key == keySortie:
-                    temps = 0
-                    passageEnCours = True
-                    valeurs = []
-                    vitesse = - vitesseObstacle
-                    posObstacle = (xCentre, yDepartSortie)
+                    obstacle = Obstacle(tailleObstacle,(xCentre, startBas), - vitesseObstacle)
                     print("sortie")
 
-    if passageEnCours:
-        posObstacle = deplaceObstacle(vitesse,dt,posObstacle)
-        valeur = intensiteCapteur(posObstacle , tailleObstacle, intensiteDiode1 , yObstacleRayon1,intensiteDiode2 , yObstacleRayon2)
-        valeurs.append(valeur)
-        temps += 1
-        if temps >= dtParPassage:
-            print(valeurs)
-            passageEnCours = False
+    if obstacle != None:
+        obstacle.avance(dt)
+        valeur = intensiteCapteur(obstacle,diode1,diode2,intersection1,intersection2)
+        mesures.append(valeur)
+        affiche(fond,diode1,diode2,obstacle,capteur)
+        if obstacle.isLoinDuDispositif():
+            obstacle = None
+    else:
+        mesures.append(valeurRef)
+
+fromListToCSV(mesures)

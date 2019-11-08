@@ -1,18 +1,20 @@
 
 #Les positions sont exprimées dans un repère cartésien avec x horizontal vers
-#la droite et y vertical vers le bas
+#la droite et y vertical vers le bas. La mesure est en centimètres
+#L'origine du repere est la diode 1
+#L'autre diode est située sur l'axe y.
+
+#Afin de décrire la positions des diodes, il suffit de donner l'écartement entre
+#Elles. En centimetres
+
 #Les valeurs des coordonnées sont en centimetres
-posCapteur = (10,5)
+posCapteur = (100,5)
 
-#On suppose que les diodes ont toujours la même position en x.
-#On choisit à priori tout le temps l'origine à la diode 1
-posDiode1 = (0,0)
+ecartDiodes = 10
 
-posDiode2 = (0,10)
-
-#La vitesse est exprimée en m/s. La seule vitesse sera selon y
-vitesseObstacle = 1.0
-#La largeur de l'obstacle qui passe par la porte
+#La vitesse est exprimée en cm/s. La seule vitesse sera selon y
+vitesseObstacle = 100.0
+#La largeur de l'obstacle qui passe par la porte, en cm
 tailleObstacle = 30
 
 #Les intensités des diodes sont les valeurs les plus difficiles à obtenir
@@ -23,16 +25,22 @@ intensiteDiode1 = 8.0
 
 intensiteDiode2 = 4.0
 
-#Nombre de secondes entre chaque calcul (float)
-dt = 0.5
+#Nombre de secondes simulées entre chaque calcul (float)
+dt = 0.001
+
+#Temps entre chaque affichage, pour permettre de voir quelquechose sur l'affichage
+timeGap = 0.01
 
 #Propre au programme :
+pixelsParCentimetre = 15
+
+#La position apparente de l'origine lors de l'affichage
+affichageOrigine = (5,5)
+
+#La distance au dispositif à laquelle l'obstacle commence (en cm)
+margeDepart = 10
+
 from pygame.locals import *
 
-#Taille de la fenetre (plus tard calculé en fonction des points donnés)
-#Les valeurs sont en pixel
-largeur = 1000
-hauteur = 1000
-
-keyEntree = K_UP
-keySortie = K_DOWN
+keyEntree = K_DOWN
+keySortie = K_UP

@@ -5,15 +5,11 @@ def graph_from_csv(file):
     lignes = f.readlines()
     f.close()
 
-    for i in range(len(lignes)):
-        ligne = lignes[i][:-1]
-        ligne = ligne.split(',')
-        ligne = [ float(x) for x in ligne ]
+    ligne = lignes[0][:-1]
+    ligne = ligne.split(',')
+    liste = [ float(x) for x in ligne ]
 
-        """liste = []
-        for j in range(0,len(ligne),pas_values):
-            liste.append(ligne[j])"""
-        plt.plot(ligne)
+    plt.plot(liste)
     plt.show()
 
-graph_from_csv('201911082021.dec')
+graph_from_csv('201911082059.dec')

@@ -111,6 +111,7 @@ def fromListToCSV(liste):
     D = localtime()
     name = str(D[0]) + str_nb(D[1]) + str_nb(D[2]) + str_nb(D[3])+ str_nb(D[4]) + ".dec"
     f = open("courbes/" + name, "w")
+    f.write("entete\n")
     for el in liste:
         f.write(str(el) + ',')
     f.close()

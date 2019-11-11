@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 
 def graph_from_csv(file):
+    name = file[0:4] + "/" + file[4:6] + "/" + file[6:8] + " à " + file[8:10] + ":" + file[10:12]
+
     f = open("courbes/" + file,'r')
     lignes = f.readlines()
     f.close()
@@ -10,6 +12,9 @@ def graph_from_csv(file):
     liste = [ float(x) for x in ligne ]
 
     plt.plot(liste)
+    plt.title(name)
+    plt.xlabel("Temps (t)")
+    plt.ylabel("Tension (U)")
     plt.show()
 
-graph_from_csv('201911082059.dec')
+graph_from_csv('201911082031.dec')

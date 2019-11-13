@@ -24,11 +24,19 @@ tailleObstacle = 30
 intensiteDiode1 = 8.0
 intensiteDiode2 = 4.0
 
-rise_time = 0.2 * pow(10, -6)
-fall_time = rise_time
-
 #Nombre de secondes simulées entre chaque calcul (float)
 dt = 0.001
+
+#Temps de réponse du capteur :
+riseTime = 0.2 * pow(10, -6)
+fallTime = riseTime
+
+#---------------------------------------------
+#Valeurs IHM de simulation :
+#---------------------------------------------
+
+#La distance au dispositif à laquelle l'obstacle commence (en cm)
+margeDepart = 10
 
 #Temps entre chaque affichage, pour permettre de voir quelquechose sur l'affichage
 timeGap = 0.01
@@ -39,10 +47,11 @@ pixelsParCentimetre = 15
 #La position apparente de l'origine lors de l'affichage
 affichageOrigine = (5,5)
 
-#La distance au dispositif à laquelle l'obstacle commence (en cm)
-margeDepart = 10
+couleurDiode = (255,0,0)
+couleurCapteur = (0,255,0)
+couleurObstacle = (255,255,255)
 
 from pygame.locals import *
-
+#Touches pour interagir avec le programme
 keyEntree = K_DOWN
 keySortie = K_UP

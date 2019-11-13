@@ -18,7 +18,7 @@ class Diode:
         self.intensite = intensite
         #Pour l'affichage :
         self.skin = pygame.Surface((5,5))
-        self.skin.fill((255,0,0))
+        self.skin.fill(couleurDiode)
 
     def affiche(self,decal):
         pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
@@ -31,7 +31,7 @@ class Capteur:
         self.y = pos[1]
         #Pour l'affichage :
         self.skin = pygame.Surface((5,5))
-        self.skin.fill((0,255,0))
+        self.skin.fill(couleurCapteur)
 
     def affiche(self,decal):
         pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
@@ -46,7 +46,7 @@ class Obstacle:
         self.vitesse = vitesse
         #Pour l'affichage :
         self.skin = pygame.Surface((5,self.taille * pixelsParCentimetre))
-        self.skin.fill((255,255,255))
+        self.skin.fill(couleurObstacle)
 
     def affiche(self,decal):
         pixelPosition = ((self.x + decal[0]) * pixelsParCentimetre, (self.y + decal[1]) * pixelsParCentimetre)
@@ -105,13 +105,27 @@ def afficheTexte(pos,ch,flip = False):
     if flip:
         pygame.display.flip()
 
-def fromListToCSV(liste):
+def entete():
+    #Permet de générer l'entete du fichier contenant la configuration
+    ch = ''
+    ch += 'posCapteur : ' + str(posCapteur) + "; "
+    ch += 'ecartDiodes : ' + str(ecartDiodes) + "; "
+    ch += 'vitesseObstacle : ' + str(vitesseObstacle) + "; "
+    ch += 'tailleObstacle : ' + str(tailleObstacle) + "; "
+    ch += 'intensiteDiode1 : ' + str(intensiteDiode1) + "; "
+    ch += 'intensiteDiode2 : ' + str(intensiteDiode2) + "; "
+    ch += 'dt : ' + str(dt) + "; "
+    ch += 'riseTime : ' + str(riseTime) + "; "
+    ch += 'fallTime : ' + str(fallTime) + "; \n"
+    return ch
 
+def fromListToCSV(liste):
+    #sauvegarde la liste des valeurs dans un fichier csv
     print("Ne pas eteindre, sauvegarde des données en cours")
     D = localtime()
     name = str(D[0]) + str_nb(D[1]) + str_nb(D[2]) + str_nb(D[3])+ str_nb(D[4]) + ".dec"
     f = open("courbes/" + name, "w")
-    f.write("entete\n")
+    f.write(entete())
     for el in liste:
         f.write(str(el) + ',')
     f.close()

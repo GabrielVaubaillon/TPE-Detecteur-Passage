@@ -7,8 +7,8 @@ def graph_from_csv(file):
     lignes = f.readlines()
     f.close()
 
-    #Les valeurs sont sur la deuxieme ligne
-    ligne = lignes[0][:-1]
+    #Les valeurs sont sur la deuxieme ligne, la premiere correspond à l'entete
+    ligne = lignes[1][:-1]
     ligne = ligne.split(',')
     liste = [ float(x) for x in ligne ]
 
@@ -18,4 +18,4 @@ def graph_from_csv(file):
     plt.ylabel("Tension (U)")
     plt.show()
 
-graph_from_csv('201911102039.dec')
+graph_from_csv('201911131304.dec')

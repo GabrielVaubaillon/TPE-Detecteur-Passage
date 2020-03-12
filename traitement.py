@@ -9,9 +9,9 @@ from statistics import mean
 #--------------------------
 
 #Nom du fichier csv que l'on analyse :
-file = '201911131304.dec'
+file = 'donneexpARAA.dec'
 #Précision pour les égalités :
-EPSILON = 0.213
+EPSILON = 50
 #Nombre nécessaire de valeurs pour que ça soit considéré comme un palier
 STANDBY_ITERATION = 4
 
@@ -66,7 +66,7 @@ def analyse(liste):
     #Définie à partir des paliers si l'on a détecté une entrée ou une sortie
 
     if len(liste) < 3 or len(liste) > 4:
-        res = erreur
+        res = 'erreur'
         print("Faux passage")
     else:
         if liste[0] < liste[2]:
@@ -106,7 +106,7 @@ val = valeurs[t]
 vref = val
 t += 1
 while t < nbValeurs:
-    if val < vref :
+    if val < vref - EPSILON :
         passageEnCours = True  #On part du principe que l'obstacle est assez large
         #pour obstruer les deux diodes en meme temps lorsque qu'il passe. Ce qui
         #veut dire que le passage est terminé lorsque la valeur courante revient
